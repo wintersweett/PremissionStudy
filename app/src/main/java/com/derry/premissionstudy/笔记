@@ -1,0 +1,95 @@
+
+
+AspectJ
+
+监听注解 三个注解
+
+
+简单的原理：
+Login.java       javac              Login.class                 JVM
+Login.java       Aspect + javac     Login.class(修改字节码)       JVM
+
+修改了什么东西：
+例如: 我是JVM 我看的懂字节码
+    public void testRequest() {
+        Toast.makeText(this, "权限申请成功...", Toast.LENGTH_SHORT).show();
+        // 100 行
+    }
+
+    public void testRequest() {
+
+            // 调用 空白的 Activity 申请权限
+                    MyPermissionActivity.requestPermissionAction(context, permission.value(), permission.requestCode(), new IPermission() {
+                        // 已经授权
+                        @Override
+                        public void ganted() {
+                            // 申请成功
+                            try {
+                                 Toast.makeText(this, "权限申请成功...", Toast.LENGTH_SHORT).show();
+                                            // 100 行
+                            } catch (Throwable throwable) {
+                                throwable.printStackTrace();
+                            }
+                        }
+
+                        @Override
+                        public void cancel() {
+                            // 被拒绝
+                            PermissionUtils.invokeAnnotion(thisObject, PermissionCancel.class);
+                        }
+
+                        @Override
+                        public void denied() {
+                            // 被拒绝（不再提醒的）
+                            PermissionUtils.invokeAnnotion(thisObject, PermissionDenied.class);
+                        }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+AspectJ
+
+APT编译生成，错误的
+
+javac
+Test.java  javac   Test.class(JVM认识)
+
+javac+AspectJ = AspectJ
+Test.java   AspectJ   Test.class（自由的在字节码里面修改东西）(JVM认识的)
+
+AspectJ依赖Java环境
+thisObject == null 环境有问题
+
+
+-----
+依赖倒置原则：
+面向高层（跳转），不面向细节（高扩展 == 有标准）
+
+使用的时候：
+面向高层（抽象，接口）
+
+面向接口编程
+
+单一原则：
+
+-----
+作业：用APT + 反射的方式，实现本节课类似的功能点
